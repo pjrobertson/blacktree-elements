@@ -10,17 +10,20 @@ NSArray *getPreferredNetworks(void)
         NSDictionary *config = [NSDictionary dictionaryWithContentsOfFile:@"/Library/Preferences/SystemConfiguration/preferences.plist"];
         NSDictionary *sets = [config objectForKey:@"Sets"];
         for (NSString *setKey in sets) {
-            NSDictionary *set = [sets objectForKey:setKey];
-            NSDictionary *network = [set objectForKey:@"Network"];
-            NSDictionary *interface = [network objectForKey:@"Interface"];
-            for(NSString *interfaceKey in interface) {
-                NSDictionary *bsdInterface = [interface objectForKey:interfaceKey];
-                for(NSString *namedInterfaceKey in bsdInterface) {
-                    NSDictionary *namedInterface = [bsdInterface objectForKey:namedInterfaceKey];
-                    NSArray *networks = [namedInterface objectForKey:@"PreferredNetworks"];
-                    for (NSDictionary *network in networks) {
-                        NSString *ssid = [network objectForKey:@"SSID_STR"];
-                        [result addObject:ssid];
+			if ([setKey isEqualToString:[[config objectForKey:@"CurrentSet"] substringFromIndex:6]]) {
+				NSDictionary *set = [sets objectForKey:setKey];
+				NSDictionary *network = [set objectForKey:@"Network"];
+				NSDictionary *interface = [network objectForKey:@"Interface"];
+				for(NSString *interfaceKey in interface) {
+					NSDictionary *bsdInterface = [interface objectForKey:interfaceKey];
+					for(NSString *namedInterfaceKey in bsdInterface) {
+						NSDictionary *namedInterface = [bsdInterface objectForKey:namedInterfaceKey];
+						NSArray *networks = [namedInterface objectForKey:@"PreferredNetworks"];
+						for (NSDictionary *network in networks) {
+							NSString *ssid = [network objectForKey:@"SSID_STR"];
+							[result addObject:ssid];
+							break;
+						}
                     }
                 }
             }
@@ -95,6 +98,7 @@ NSArray *getAvailableNetworks(void)
             [newObject setParentID:[object identifier]];
             [newObject setIcon:[QSResourceManager imageNamed:@"AirPort" inBundle:[NSBundle bundleWithIdentifier:@"com.blacktree.Quicksilver.QSAirPortPlugIn"]]];
             [objects addObject:newObject];
+			[object setIconLoaded:YES];
         }
         [object setChildren:objects];
         return YES;
